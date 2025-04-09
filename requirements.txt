@@ -1,0 +1,7 @@
+streamlit
+langchain_core
+langchain_community
+langchain_ollama
+pypdf
+#using fais main reason is for pc which does not have GPU
+faiss-cpu  #use for clustering dense vectors  (it finds similar doxuments )
