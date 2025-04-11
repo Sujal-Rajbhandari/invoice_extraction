@@ -20,17 +20,14 @@ Question: {question}
 Context: {context} 
 Answer:
 """
+
 def upload_pdf(file):
     os.makedirs(pdfs_directory, exist_ok=True)  
     with open(os.path.join(pdfs_directory, file.name), "wb") as f:
         f.write(file.getbuffer())  
 
 def extract_text_from_images(pdf_path):
-    images = convert_from_path(
-        pdf_path,
-        #poppler helps to read image pdf
-        poppler_path=r"C:\pdf_chat\Release-24.08.0-0\poppler-24.08.0\Library\bin"
-    )
+    images = convert_from_path(pdf_path)  # Removed poppler_path
     text = ""
     for image in images:
         text += pytesseract.image_to_string(image) 
@@ -41,10 +38,11 @@ def create_vector_store(file_path):
     documents = loader.load()
 
     combined_text = " ".join([doc.page_content.strip() for doc in documents])
-    if not combined_text or len(combined_text) < 30: # this threadhold is keep beacuse to check id pdf text is ectracted by pydfloader. checking meaningful enough or not
-        print("No meaningful text found, trying OCR...") # if it does not have txt i will check the image and extra it 
+    if not combined_text or len(combined_text) < 30:
+        print("No meaningful text found, trying OCR...")
         text = extract_text_from_images(file_path)
-        documents = [Document(page_content=text, metadata={})] #metadata store additoanl data 
+        documents = [Document(page_content=text, metadata={})]
+
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=2000,
         chunk_overlap=300,
