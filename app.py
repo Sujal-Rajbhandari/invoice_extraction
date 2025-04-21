@@ -28,7 +28,7 @@ def invoice_info(image):
         ]
     } 
     If a field is not found then return keep it as none value
-    Do not include explanations, markdown formatting, or anything else. Only return raw JSON.
+    Do not include explanations markdown formatting, or anything else. Only return raw JSON.
     """
     response = model.generate_content([image[0],prompt])
     return response.text
