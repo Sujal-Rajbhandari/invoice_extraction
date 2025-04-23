@@ -57,7 +57,7 @@ def validation(data):
     items = data.get("Items", [])
     for item in items:
         try:  
-            quantity = float(item["quantity"])
+            quantity = int(item["quantity"])
             unit_price = float(item["unit_price"])
         except (ValueError, TypeError):
             return False, "Invalid quantity or unit price in the invoice."
