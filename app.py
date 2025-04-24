@@ -7,6 +7,8 @@ from PIL import Image
 import google.generativeai as genai
 import re 
 import time 
+from typing import List, Optional
+from pydantic import BaseModel, ValidationError, validator
 
 genai.configure(api_key = os.getenv("GOOGLE_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-flash", 
@@ -35,12 +37,14 @@ prompt = """
 def invoice_info(image): 
     response = model.generate_content([image[0],prompt])
     return response.text
-    
-def cost(input_token, output_token): 
-    input_cost = (input_token/100000) * 0.075 
-    output_cost = (output_token/100000) * 0.30
-    total = input_cost + output_cost
-    return total
+
+ 
+# def cost(input_token, output_token): 
+#     input_cost = (input_token/100000) * 0.075 
+#     output_cost = (output_token/100000) * 0.30
+#     total = input_cost + output_cost
+#     return total
+
 
 def input_image_details(uploaded_file):
     if uploaded_file is not None:
@@ -53,15 +57,17 @@ def input_image_details(uploaded_file):
     else:
         return FileNotFoundError("No file uploaded")
 
-def validation(data): 
-    items = data.get("Items", [])
-    for item in items:
-        try:  
-            quantity = int(item["quantity"])
-            unit_price = float(item["unit_price"])
-        except (ValueError, TypeError):
-            return False, "Invalid quantity or unit price in the invoice."
-    return True, ""
+class ItemModel(BaseModel):
+    name: Optional[str] = None 
+    description: Optional[str] = None
+    quantity: Optional[int] = None
+    unit_price: Optional[float] = None
+
+class InvoiceModel(BaseModel):
+    Invoice_Date: Optional[str]
+    Invoice_Number: Optional[int] 
+    Invoice_Amount: Optional[float] 
+    Items: List[ItemModel]
 
 
 st.set_page_config(page_title = "Invoice extraction")
@@ -85,10 +91,10 @@ if uploaded_file is not None:
             processing_time = end_time - start_time
             st.success(f"Processing time: {processing_time:.2f} seconds")
 
-            input_token_estimate = len(prompt)//4 #estimating the token for input
-            output_token_estimate = len(response_text)// 4 
-            cost_estimate = cost(input_token_estimate, output_token_estimate) 
-            st.success(f"Price for this image: ${cost_estimate:.6f} ")
+            # input_token_estimate = len(prompt)//4 #estimating the token for input
+            # output_token_estimate = len(response_text)// 4 
+            # cost_estimate = cost(input_token_estimate, output_token_estimate) 
+            # st.success(f"Price for this image: ${cost_estimate:.6f} ")
 
             if not response_text.strip(): #no reponse then error 
                 raise ValueError("Empty response from Gemini")
@@ -101,18 +107,12 @@ if uploaded_file is not None:
                 
             response_json = json.loads(json_str)
 
+            parsed_data = json.loads(json_str)
+            invoice = InvoiceModel(**parsed_data)
+            st.subheader("Extracted Information:")
+            st.json(invoice.dict())
 
-            valid, error_msg = validation(response_json)
-            if not valid:
-                st.error(f"Validation Error: {error_msg}")
-                st.subheader("Raw Gemini Response:")
-                st.code(response_text)
-            else:
-                st.subheader("Extracted Invoice Data:")
-                st.json(response_json)
-
-            response_json = json.loads(json_str)
-                
+            
         except Exception as e:
             st.error(" Failed to extract valid JSON from model's response.")
             if 'response_text' in locals():
