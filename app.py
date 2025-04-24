@@ -46,7 +46,6 @@ class InvoiceModel(BaseModel):
     Invoice_Number: Optional[int] 
     Invoice_Amount: Optional[float] 
     Items: List[ItemModel]
-
 #sending prompt to gemini 
 def invoice_info(image): 
     response = model.generate_content([image[0],prompt])
@@ -72,9 +71,9 @@ if submitted and uploaded_file:
     st.image(Image.open(uploaded_file), caption="Uploaded Image", use_container_width = True)
 
 #time taken for gemini to extract information 
-    image_data = input_image_details(uploaded_file)  # converting upload image into gemini format
+    image_data = input_image_details(uploaded_file)  
     start_time = time.time()
-    response_text = invoice_info(image_data) #sned image to gemini
+    response_text = invoice_info(image_data) 
     end_time = time.time()
     processing_time = end_time - start_time
     st.success(f"Processing time: {processing_time: .2f} seconds")
