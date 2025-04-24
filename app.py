@@ -1,6 +1,5 @@
 from dotenv import load_dotenv
 import json 
-load_dotenv()
 import streamlit as st 
 import os 
 from PIL import Image
@@ -10,6 +9,7 @@ import time
 from typing import List, Optional
 from pydantic import BaseModel, ValidationError, validator
 
+load_dotenv()
 genai.configure(api_key = os.getenv("GOOGLE_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-flash", 
                                 generation_config = {"response_mime_type":"application/json"})
@@ -34,29 +34,7 @@ prompt = """
     Do not include explanations, markdown formatting or anything else. Only return raw JSON.
     """
 
-def invoice_info(image): 
-    response = model.generate_content([image[0],prompt])
-    return response.text
-
- 
-# def cost(input_token, output_token): 
-#     input_cost = (input_token/100000) * 0.075 
-#     output_cost = (output_token/100000) * 0.30
-#     total = input_cost + output_cost
-#     return total
-
-
-def input_image_details(uploaded_file):
-    if uploaded_file is not None:
-        bytes_data = uploaded_file.getvalue()
-        image_parts = [{
-            "mime_type": uploaded_file.type,
-            "data": bytes_data}
-        ]
-        return image_parts
-    else:
-        return FileNotFoundError("No file uploaded")
-
+#validation
 class ItemModel(BaseModel):
     name: Optional[str] = None 
     description: Optional[str] = None
@@ -69,54 +47,51 @@ class InvoiceModel(BaseModel):
     Invoice_Amount: Optional[float] 
     Items: List[ItemModel]
 
+#sending prompt to gemini 
+def invoice_info(image): 
+    response = model.generate_content([image[0],prompt])
+    return response.text
 
+#conver invoice into gemini format 
+def input_image_details(uploaded_file):
+        bytes_data = uploaded_file.getvalue()
+        return  [{
+            "mime_type": uploaded_file.type,
+            "data": bytes_data}]
+
+#streamlit application
 st.set_page_config(page_title = "Invoice extraction")
 st.header("Information Extraction from Invoice")
 
+#form to upload image and extract only after submission  
+with st.form("invoice_form"):
+    uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+    submitted = st.form_submit_button("Tell me about this invoice")
 
-uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+if submitted and uploaded_file:
+    st.image(Image.open(uploaded_file), caption="Uploaded Image", use_container_width = True)
 
+#time taken for gemini to extract information 
+    image_data = input_image_details(uploaded_file)  # converting upload image into gemini format
+    start_time = time.time()
+    response_text = invoice_info(image_data) #sned image to gemini
+    end_time = time.time()
+    processing_time = end_time - start_time
+    st.success(f"Processing time: {processing_time: .2f} seconds")
 
-if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    st.image(image, caption="Uploaded Image", use_container_width = True)
-    
-    if st.button("Tell me about the invoice"):
-# converting upload image into gemini format
-        image_data = input_image_details(uploaded_file)
-        try:
-            start_time = time.time()
-            response_text = invoice_info(image_data) #sned image to gemini
-            end_time = time.time()
-            processing_time = end_time - start_time
-            st.success(f"Processing time: {processing_time:.2f} seconds")
-
-            # input_token_estimate = len(prompt)//4 #estimating the token for input
-            # output_token_estimate = len(response_text)// 4 
-            # cost_estimate = cost(input_token_estimate, output_token_estimate) 
-            # st.success(f"Price for this image: ${cost_estimate:.6f} ")
-
-            if not response_text.strip(): #no reponse then error 
-                raise ValueError("Empty response from Gemini")
-        
+    if not response_text.strip(): 
+        st.error("Empty ressponse from gemini")
+    else:
+        try: 
             match = re.search(r"```json(.*?)```", response_text, re.DOTALL)
-            if match:
-                json_str = match.group(1).strip()
-            else:
-                json_str = re.search(r"\{.*\}", response_text, re.DOTALL).group()
-                
-            response_json = json.loads(json_str)
-
+            json_str = match.group(1).strip() if match else re.search(r"\{.*\}", response_text, re.DOTALL).group()
             parsed_data = json.loads(json_str)
             invoice = InvoiceModel(**parsed_data)
-            st.subheader("Extracted Information:")
+            st.subheader("Extracted Invoice Information:")
             st.json(invoice.dict())
-
-            
-        except Exception as e:
-            st.error(" Failed to extract valid JSON from model's response.")
-            if 'response_text' in locals():
-                st.subheader("Raw Gemini Response:")
-                st.code(response_text)
+        except (ValidationError, json.JSONDecodeError) as e:
+            st.error("Failed to validate or parse the response.")
+            st.code(response_text)
             st.exception(e)
+
 
