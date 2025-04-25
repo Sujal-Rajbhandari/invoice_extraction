@@ -74,9 +74,11 @@ Average time to extract a single invoice using Gemini:
 |---------|-------------|
 | 1 invoice |  $0.003 |
 | 100 invoice| $0.3 |
-| 500 invoice| $1.5 |
-| 1000 invoice| $3 |
-| 10000 invoice| $30 |
+| 5,00 invoice| $1.5 |
+| 1,000 invoice| $3 |
+| 10,000 invoice| $30 |
+| 25,000 invoice| $75 |
+| 50,000 invoice| $150 |
 
 
 
