@@ -80,7 +80,7 @@ Average time to extract a single invoice using Gemini:
 | 25,000 invoice| $7.5 |
 | 50,000 invoice| $15 |
 
-Calculation: 
+**Calculation:** <br> 
 Tentative price token from google AI for Developers Input: $0.075, prompts <= 128k tokens, output: $0.30, prompts <= 128k tokens
  (https://ai.google.dev/gemini-api/docs/pricing)
 <em>Note: Paid Tier, per 1M tokens in USD</em>
