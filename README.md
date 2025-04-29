@@ -72,13 +72,13 @@ Average time to extract a single invoice using Gemini:
 
 | **Volume** | **Estimated Cost** |
 |---------|-------------|
-| 1 invoice |  $0.003 |
-| 100 invoice| $0.3 |
-| 5,00 invoice| $1.5 |
-| 1,000 invoice| $3 |
-| 10,000 invoice| $30 |
-| 25,000 invoice| $75 |
-| 50,000 invoice| $150 |
+| 1 invoice |  $0.0003 |
+| 100 invoice| $0.03 |
+| 5,00 invoice| $0.15 |
+| 1,000 invoice| $0.3 |
+| 10,000 invoice| $3 |
+| 25,000 invoice| $7.5 |
+| 50,000 invoice| $15 |
 
 Calculation: 
 Tentative price token from google AI for Developers Input: $0.075, prompts <= 128k tokens, output: $0.30, prompts <= 128k tokens
@@ -87,19 +87,23 @@ Tentative price token from google AI for Developers Input: $0.075, prompts <= 12
 
 A 1 million would not be appopratie for a company so lets begin our calculation for 1 invoice. 
 
+<p>
+Lets say a large size image takes 800 tokens: <br>
+Tokens = 800 <br>
+Input price: $0.075 <br>
+Output price: $0.30 <br> 
 
-Lets say a large size image takes 800 tokens: 
-Tokens = 800
-Input price: $0.075
-Output price: $0.30
+So based on given data; <br>
+Total price for input  = 800/10,00,000*0.075<br> 
+			= 0.00006 <br>
+Total price for output = 800/10,00,000*0.30 <br>
+			= 0.00024 <br> 
 
-So based on given data; 
-Total price for input for one invoice = 800/100000*0.075
-					= 0.003
-Total pric
-
+**Total price for one invoice** = 0.0006+0.00024  <br>
+				= 0.0003
 
 
+</p>
 
 
 
