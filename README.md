@@ -4,11 +4,11 @@
 	
 | Feature | Description |
 |---------|-------------|
-| **📤 Upload Support** | Accepts .jpg, .jpeg, .png invoice/bill images |
-| **🤖 Gemini API Integration **|Uses Google's Gemini 1.5 Flash to extract invoice data |
-| **✅ JSON Output** |Returns a well-formatted JSON containing key fields from the invoice |
-| **🔍 Data Validation** | Ensures valid types and prevents negative values using Pydantic |
-|** 🕒 Time Profiling** | Shows how long Gemini takes to process each image|
+| ** Upload Support** | Accepts .jpg, .jpeg, .png invoice/bill images |
+| ** Gemini API Integration **|Uses Google's Gemini 1.5 Flash to extract invoice data |
+| ** JSON Output** |Returns a well-formatted JSON containing key fields from the invoice |
+| ** Data Validation** | Ensures valid types and prevents negative values using Pydantic |
+|**  Time Profiling** | Shows how long Gemini takes to process each image|
 
 <h3>🚀 Quick Start</h3>
 
